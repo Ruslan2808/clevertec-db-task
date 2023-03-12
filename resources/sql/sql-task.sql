@@ -48,9 +48,18 @@ WHERE city IN
 
 --Способ №1
 
-SELECT f.*,
-       d.city AS departure_city,
-       a.city AS arrival_city
+SELECT f.flight_id,
+       f.flight_no,
+       f.scheduled_departure,
+       f.scheduled_arrival,
+       d.airport_name AS departure_airport,
+       d.city         AS departure_city,
+       a.airport_name AS arrival_airport,
+       a.city         AS arrival_city,
+       f.status,
+       f.aircraft_code,
+       f.actual_departure,
+       f.actual_arrival
 FROM flights AS f
 INNER JOIN airports_data AS d ON f.departure_airport = d.airport_code
 INNER JOIN airports_data AS a ON f.arrival_airport = a.airport_code
@@ -65,7 +74,19 @@ LIMIT 1;
 
 --Способ №2 (через представление)
 
-SELECT * FROM flights_v
+SELECT flight_id,
+       flight_no,
+       scheduled_departure,
+       scheduled_arrival,
+       departure_airport_name,
+       departure_city,
+       arrival_airport_name,
+       arrival_city,
+       status,
+       aircraft_code,
+       actual_departure,
+       actual_arrival
+FROM flights_v
 WHERE departure_city = 'Екатеринбург'
   AND arrival_city = 'Москва'
   AND status IN ('Scheduled',
@@ -79,23 +100,39 @@ LIMIT 1;
 
 --Способ №1
 
-(SELECT * FROM ticket_flights
+(SELECT ticket_no,
+        flight_id,
+        fare_conditions,
+        amount
+ FROM ticket_flights
  ORDER BY amount
  LIMIT 1)
 UNION
-(SELECT * FROM ticket_flights
+(SELECT ticket_no,
+        flight_id,
+        fare_conditions,
+        amount
+ FROM ticket_flights
  ORDER BY amount DESC
  LIMIT 1);
 
 --Способ №2
 
-(SELECT * FROM ticket_flights
+(SELECT ticket_no,
+        flight_id,
+        fare_conditions,
+        amount
+ FROM ticket_flights
  WHERE amount =
        (SELECT MIN(amount)
         FROM ticket_flights)
  LIMIT 1)
 UNION
-(SELECT * FROM ticket_flights
+(SELECT ticket_no,
+        flight_id,
+        fare_conditions,
+        amount
+ FROM ticket_flights
  WHERE amount =
        (SELECT MAX(amount)
         FROM ticket_flights)
