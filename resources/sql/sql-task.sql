@@ -14,7 +14,7 @@ ORDER BY ad.aircraft_code;
 --Найти 3 самых вместительных самолета (модель + кол-во мест)
 
 SELECT ad.model,
-       count(s.seat_no) AS number_seats
+       COUNT(s.seat_no) AS number_seats
 FROM aircrafts_data AS ad
 INNER JOIN seats AS s ON ad.aircraft_code = s.aircraft_code
 GROUP BY ad.model
@@ -46,7 +46,7 @@ WHERE city IN
 
 --Найти ближайший вылетающий рейс из Екатеринбурга в Москву, на который еще не завершилась регистрация
 
---Способ #1
+--Способ №1
 
 SELECT f.*,
        d.city AS departure_city,
@@ -63,10 +63,9 @@ WHERE d.city ->> 'ru' = 'Екатеринбург'
 ORDER BY f.scheduled_departure
 LIMIT 1;
 
---Способ #2 (через представление)
+--Способ №2 (через представление)
 
-SELECT *
-FROM flights_v
+SELECT * FROM flights_v
 WHERE departure_city = 'Екатеринбург'
   AND arrival_city = 'Москва'
   AND status IN ('Scheduled',
@@ -78,29 +77,25 @@ LIMIT 1;
 
 --Вывести самый дешевый и дорогой билет и стоимость (в одном результирующем ответе)
 
---Способ #1
+--Способ №1
 
-(SELECT *
- FROM ticket_flights
+(SELECT * FROM ticket_flights
  ORDER BY amount
  LIMIT 1)
 UNION
-(SELECT *
- FROM ticket_flights
+(SELECT * FROM ticket_flights
  ORDER BY amount DESC
  LIMIT 1);
 
---Способ #2
+--Способ №2
 
-(SELECT *
- FROM ticket_flights
+(SELECT * FROM ticket_flights
  WHERE amount =
        (SELECT MIN(amount)
         FROM ticket_flights)
  LIMIT 1)
 UNION
-(SELECT *
- FROM ticket_flights
+(SELECT * FROM ticket_flights
  WHERE amount =
        (SELECT MAX(amount)
         FROM ticket_flights)
@@ -118,8 +113,7 @@ CREATE TABLE IF NOT EXISTS customers (
 
 --Написать DDL таблицы Orders, должен быть id, customerId, quantity. Должен быть внешний ключ на таблицу customers + ограничения
 
-CREATE TABLE IF NOT EXISTS orders
-(
+CREATE TABLE IF NOT EXISTS orders (
     id          BIGSERIAL PRIMARY KEY,
     customer_id BIGINT NOT NULL,
     quantity    BIGINT NOT NULL CHECK (quantity > 0),
@@ -147,15 +141,16 @@ VALUES (1, 50),
 DROP TABLE orders;
 DROP TABLE customers;
 
---Найти 3 самых популярных самолета по общей стоимости купленных билетов на все их завершенные рейсы за август
---Вывести код самолета, модель самолета и общую стоимость купленных билетов
+--Найти 3 самых популярных самолета по общей стоимости билетов на все их завершенные рейсы за август
+--Вывести код, модель самолета и общую стоимость билетов
 
 SELECT ad.aircraft_code,
        ad.model ->> 'ru' AS model,
        ta.ticket_amount
 FROM aircrafts_data AS ad
 INNER JOIN
-     (SELECT f.aircraft_code, SUM(tf.amount) AS ticket_amount
+     (SELECT f.aircraft_code,
+             SUM(tf.amount) AS ticket_amount
       FROM flights AS f
       INNER JOIN ticket_flights AS tf ON f.flight_id = tf.flight_id
       WHERE f.status = 'Arrived'
