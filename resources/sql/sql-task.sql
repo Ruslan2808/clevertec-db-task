@@ -142,10 +142,10 @@ UNION
 
 CREATE TABLE IF NOT EXISTS customers (
     id         BIGSERIAL PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name  VARCHAR(255) NOT NULL,
-    email      VARCHAR(255) NOT NULL UNIQUE,
-    phone      VARCHAR(255) NOT NULL UNIQUE
+    first_name VARCHAR(25) NOT NULL CHECK (first_name ~ '^[A-Z][a-z]+$'),
+    last_name  VARCHAR(25) NOT NULL CHECK (last_name ~ '^[A-Z][a-z]+$'),
+    email      VARCHAR(50) NOT NULL UNIQUE CHECK (email ~* '^([a-zA-Z]+[^@]*)@([a-zA-Z]+\.)+[a-zA-Z]{2,4}$'),
+    phone      VARCHAR(15) NOT NULL UNIQUE CHECK (length(phone) > 0)
 );
 
 --Написать DDL таблицы Orders, должен быть id, customerId, quantity. Должен быть внешний ключ на таблицу customers + ограничения
